@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
 import { useForm } from 'react-hook-form';
+import { useAuth } from '../../hooks/auth';
 
 import { Button } from '../../components/Form/Button';
 import { InputForm } from '../../components/Form/InputForm';
@@ -15,7 +16,7 @@ import { CategorySelectButton } from '../../components/Form/CategorySelectButton
 
 import { CategorySelect } from '../CategorySelect';
 
-import { 
+import {
     Container,
     Header,
     Title,
@@ -45,6 +46,8 @@ export function Register() {
     const [transactionType, setTransactionType] = useState('');
     const [categoryModalOpen, setCategoryModalOpen] = useState(false);
 
+    const { user } = useAuth();
+
     const [category, setCategory] = useState({
         key: 'category',
         name: 'Categoria'
@@ -69,10 +72,10 @@ export function Register() {
     }
 
     async function handleRegister(form: Partial<FormData>) {
-        if(!transactionType)
+        if (!transactionType)
             return Alert.alert('Selecione o tipo da transação');
 
-        if(category.key === 'category') {
+        if (category.key === 'category') {
             return Alert.alert('Selecione a categoria');
         }
 
@@ -86,7 +89,7 @@ export function Register() {
         }
 
         try {
-            const dataKey = '@gofinances:transactions';
+            const dataKey = `@gofinances:transactions_user:${user.id}`;
             const data = await AsyncStorage.getItem(dataKey);
             const currentData = data ? JSON.parse(data) : [];
 
@@ -129,22 +132,22 @@ export function Register() {
                             autoCorrect={false}
                             error={errors.name && errors.name.message}
                         />
-                        <InputForm 
+                        <InputForm
                             name="amount"
-                            control={control} 
+                            control={control}
                             placeholder="Preço"
                             keyboardType="numeric"
                             error={errors.amount && errors.amount.message}
                         />
 
                         <TransactionsTypes>
-                            <TransactionTypeButton 
+                            <TransactionTypeButton
                                 type="up"
                                 title="Income"
                                 onPress={() => handleTransactionsTypeSelect('positive')}
                                 isActive={transactionType === 'positive'}
                             />
-                            <TransactionTypeButton 
+                            <TransactionTypeButton
                                 type="down"
                                 title="Outcome"
                                 onPress={() => handleTransactionsTypeSelect('negative')}
@@ -152,20 +155,20 @@ export function Register() {
                             />
                         </TransactionsTypes>
 
-                        <CategorySelectButton 
+                        <CategorySelectButton
                             title={category.name}
                             onPress={handleCloseSelectCategoryModal}
                         />
                     </Fields>
 
-                    <Button 
+                    <Button
                         title="Enviar"
                         onPress={handleSubmit(handleRegister)}
                     />
                 </Form>
 
                 <Modal visible={categoryModalOpen}>
-                    <CategorySelect 
+                    <CategorySelect
                         category={category}
                         setCategory={setCategory}
                         closeSelectCategory={handleOpenSelectCategoryModal}
